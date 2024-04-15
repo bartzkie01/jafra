@@ -12,12 +12,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ username, password })
     });
 
+    const responseData = await response.json();
+
+    console.log('Response data:', responseData); // Add this line to log the response data
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error);
+      throw new Error(responseData.error);
     }
 
-    const responseData = await response.json();
     const redirectUrl = responseData.redirect;
     window.location.href = redirectUrl;
   } catch (error) {
