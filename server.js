@@ -49,14 +49,14 @@ app.get('/admin_users_data', (req, res) => {
 });
 
 // Modified the login route to handle POST requests
-app.post('/login', (req, res) => {
+app.post('/login', (req, res, next) => {
   const { username, password } = req.body;
   const queryJafra = 'SELECT * FROM users WHERE username = ? AND password = ?';
   const queryAdmin = 'SELECT * FROM users WHERE username = ? AND password = ?';
   jafraDb.get(queryJafra, [username, password], (err, row) => {
     if (err) {
       console.error('Error executing query', err);
-      return res.status(500).json({ error: 'Internal server error' });
+      return next(err); // Pass the error to the error handling middleware
     }
     if (row) {
       // Send JSON response with redirect URL
@@ -65,7 +65,7 @@ app.post('/login', (req, res) => {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
           console.error('Error executing query', err);
-          return res.status(500).json({ error: 'Internal server error' });
+          return next(err); // Pass the error to the error handling middleware
         }
         if (row) {
           // Send JSON response with redirect URL
