@@ -1,90 +1,63 @@
-// Import required modules
-const express = require('express');
-const bodyParser = require('body-parser');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors');
-const path = require('path');
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
 
-const app = express();
-const port = process.env.PORT || 3000; // Use process.env.PORT for Heroku deployment
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Connect to the SQLite databases
-const jafraDb = new sqlite3.Database('jafra_admin.db');
-const adminUsersDb = new sqlite3.Database('admin_users.db');
-
-app.use(cors());
-
-const publicDirectoryPath = path.join(__dirname, 'public'); // Specify the directory for static files
-app.use(express.static(publicDirectoryPath));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(publicDirectoryPath, 'index.html'));
-});
-
-// Route to fetch data from Jafra Admin database
-app.get('/jafra_admin_data', (req, res) => {
-  const query = 'SELECT id, username, password FROM users'; // Modify query as per your schema
-  jafraDb.all(query, (err, rows) => {
-    if (err) {
-      console.error('Error fetching Jafra Admin data:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-    res.json(rows);
-  });
-});
-
-// Route to fetch data from Admin Users database
-app.get('/admin_users_data', (req, res) => {
-  const query = 'SELECT id, username, password FROM users'; // Modify query as per your schema
-  adminUsersDb.all(query, (err, rows) => {
-    if (err) {
-      console.error('Error fetching Admin Users data:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-    res.json(rows);
-  });
-});
-
-// Modified the login route to handle POST requests
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const queryJafra = 'SELECT * FROM users WHERE username = ? AND password = ?';
-  const queryAdmin = 'SELECT * FROM users WHERE username = ? AND password = ?';
-  jafraDb.get(queryJafra, [username, password], (err, row) => {
-    if (err) {
-      console.error('Error executing query', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-    if (row) {
-      // Send JSON response with redirect URL
-      res.status(200).json({ redirect: '/dashboard.html' });
-    } else {
-      adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
-        if (err) {
-          console.error('Error executing query', err);
-          return res.status(500).json({ error: 'Internal server error' });
+        if (!response.ok) {
+            // Handle error response from the server
+            const errorMessage = await response.text();
+            document.getElementById('message').innerText = errorMessage;
+            return;
         }
-        if (row) {
-          // Send JSON response with redirect URL
-          res.status(200).json({ redirect: '/admin_users.html' });
-        } else {
-          // Send JSON response indicating invalid username or password
-          res.status(401).json({ error: 'Invalid username or password' });
-        }
-      });
+
+        // If login is successful, redirect to the appropriate page based on the response
+        const redirectUrl = await response.text();
+        window.location.href = redirectUrl;
+    } catch (error) {
+        // Handle network errors or other unexpected errors
+        console.error('Error:', error);
+        document.getElementById('message').innerText = 'An error occurred. Please try again later.';
     }
-  });
-});
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'An error occurred on the server. Please try again later.' });
-});
+    // Function to add user
+function addUser() {
+    const userType = document.getElementById('userType').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}`);
+    // Example: Adding user to Admin Users database
+    if (userType === 'Employee') {
+        // Add user to Jafra Admin database logic here
+    } else if (userType === 'Admin') {
+        // Send POST request to add user to admin_users.db
+        fetch('/add_admin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload(); // Refresh the page to update the table
+            } else {
+                throw new Error('Failed to add user');
+            }
+        })
+        .catch(error => console.error('Error adding user:', error));
+    }
+
+    // Close the modal after adding the user
+    closeAddUserModal();
+}
+
 });
