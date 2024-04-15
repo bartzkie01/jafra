@@ -79,6 +79,13 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Route to handle adding a new user
+app.post('/add_user', (req, res) => {
+  // Handle adding a new user here
+  // For now, just send a success response
+  res.status(200).json({ message: 'User added successfully' });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
