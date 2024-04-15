@@ -55,7 +55,7 @@ app.post('/login', (req, res) => {
   const queryAdmin = 'SELECT * FROM users WHERE username = ? AND password = ?';
   jafraDb.get(queryJafra, [username, password], (err, row) => {
     if (err) {
-      console.error('Error executing query', err);
+      console.error('Error executing Jafra Admin query', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
     if (row) {
@@ -64,7 +64,7 @@ app.post('/login', (req, res) => {
     } else {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
-          console.error('Error executing query', err);
+          console.error('Error executing Admin Users query', err);
           return res.status(500).json({ error: 'Internal server error' });
         }
         if (row) {
