@@ -58,25 +58,26 @@ app.post('/login', (req, res) => {
   jafraDb.get(queryJafra, [username, password], (err, row) => {
     if (err) {
       console.error('Error executing query', err);
-      return res.status(500).send('Internal server error');
+      return res.status(500).json({ error: 'Internal server error' });
     }
     if (row) {
-      res.send('/dashboard.html'); // Redirect to dashboard.html
+      res.json({ redirect: '/dashboard.html' }); // Redirect to dashboard.html
     } else {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
           console.error('Error executing query', err);
-          return res.status(500).send('Internal server error');
+          return res.status(500).json({ error: 'Internal server error' });
         }
         if (row) {
-          res.send('/admin_users.html'); // Redirect to admin_users.htmla
+          res.json({ redirect: '/admin_users.html' }); // Redirect to admin_users.html
         } else {
-          res.status(401).send('Invalid username or password.');
+          res.status(401).json({ error: 'Invalid username or password' });
         }
       });
     }
   });
 });
+
 
 app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
