@@ -14,8 +14,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         if (!response.ok) {
             // Handle error response from the server
-            const errorMessage = await response.text();
-            document.getElementById('message').innerText = errorMessage;
+            const errorData = await response.json();
+            document.getElementById('message').innerText = errorData.error;
             return;
         }
 
