@@ -25,38 +25,38 @@ app.get('/', (req, res) => {
 });
 
 // Route to fetch data from Jafra Admin database
-app.get('/jafra_admin_data', (req, res, next) => {
+app.get('/jafra_admin_data', (req, res) => {
   const query = 'SELECT id, username, password FROM users'; // Modify query as per your schema
   jafraDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Jafra Admin data:', err);
-      return next(err); // Pass the error to the error handling middleware
+      return res.status(500).json({ error: 'Internal server error' });
     }
     res.json(rows);
   });
 });
 
 // Route to fetch data from Admin Users database
-app.get('/admin_users_data', (req, res, next) => {
+app.get('/admin_users_data', (req, res) => {
   const query = 'SELECT id, username, password FROM users'; // Modify query as per your schema
   adminUsersDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Admin Users data:', err);
-      return next(err); // Pass the error to the error handling middleware
+      return res.status(500).json({ error: 'Internal server error' });
     }
     res.json(rows);
   });
 });
 
 // Modified the login route to handle POST requests
-app.post('/login', (req, res, next) => {
+app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const queryJafra = 'SELECT * FROM users WHERE username = ? AND password = ?';
   const queryAdmin = 'SELECT * FROM users WHERE username = ? AND password = ?';
   jafraDb.get(queryJafra, [username, password], (err, row) => {
     if (err) {
       console.error('Error executing query', err);
-      return next(err); // Pass the error to the error handling middleware
+      return res.status(500).json({ error: 'Internal server error' });
     }
     if (row) {
       // Send JSON response with redirect URL
@@ -65,7 +65,7 @@ app.post('/login', (req, res, next) => {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
           console.error('Error executing query', err);
-          return next(err); // Pass the error to the error handling middleware
+          return res.status(500).json({ error: 'Internal server error' });
         }
         if (row) {
           // Send JSON response with redirect URL
