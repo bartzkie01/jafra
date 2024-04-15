@@ -15,7 +15,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      throw new Error(responseData.error);
+      throw new Error(responseData.error || 'Login failed');
     }
 
     const redirectUrl = responseData.redirect;
