@@ -1,11 +1,7 @@
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const messageElement = document.getElementById('message');
-    
-    const username = usernameInput.value;
-    const password = passwordInput.value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
     
     try {
         const response = await fetch('/login', {
@@ -19,16 +15,17 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (!response.ok) {
             // Handle error response from the server
             const errorMessage = await response.text();
-            messageElement.innerText = errorMessage;
+            document.getElementById('message').innerText = errorMessage;
             return;
         }
 
         // If login is successful, redirect to the appropriate page based on the response
-        const redirectUrl = await response.text();
+        const responseData = await response.json();
+        const redirectUrl = responseData.redirect;
         window.location.href = redirectUrl;
     } catch (error) {
         // Handle network errors or other unexpected errors
         console.error('Error:', error);
-        messageElement.innerText = 'An error occurred. Please try again later.';
+        document.getElementById('message').innerText = 'An error occurred. Please try again later.';
     }
 });
