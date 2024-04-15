@@ -30,7 +30,7 @@ app.get('/jafra_admin_data', (req, res) => {
   jafraDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Jafra Admin data:', err);
-      return res.status(500).send('Internal server error');
+      return res.status(500).json({ error: 'Internal server error' });
     }
     res.json(rows);
   });
@@ -42,7 +42,7 @@ app.get('/admin_users_data', (req, res) => {
   adminUsersDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Admin Users data:', err);
-      return res.status(500).send('Internal server error');
+      return res.status(500).json({ error: 'Internal server error' });
     }
     res.json(rows);
   });
@@ -55,20 +55,20 @@ app.post('/login', (req, res) => {
   jafraDb.get(queryJafra, [username, password], (err, row) => {
     if (err) {
       console.error('Error executing query', err);
-      return res.status(500).send('Internal server error');
+      return res.status(500).json({ error: 'Internal server error' });
     }
     if (row) {
-      res.redirect('/dashboard.html'); // Redirect to dashboard.html
+      res.status(200).json({ redirect: '/dashboard.html' }); // Send JSON response with redirect URL
     } else {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
           console.error('Error executing query', err);
-          return res.status(500).send('Internal server error');
+          return res.status(500).json({ error: 'Internal server error' });
         }
         if (row) {
-          res.redirect('/admin_users.html'); // Redirect to admin_users.html
+          res.status(200).json({ redirect: '/admin_users.html' }); // Send JSON response with redirect URL
         } else {
-          res.status(401).send('Invalid username or password.');
+          res.status(401).json({ error: 'Invalid username or password' });
         }
       });
     }
