@@ -48,6 +48,7 @@ app.get('/admin_users_data', (req, res) => {
   });
 });
 
+// Modified the login route to handle POST requests
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const queryJafra = 'SELECT * FROM users WHERE username = ? AND password = ?';
@@ -58,7 +59,8 @@ app.post('/login', (req, res) => {
       return res.status(500).json({ error: 'Internal server error' });
     }
     if (row) {
-      res.status(200).json({ redirect: '/dashboard.html' }); // Send JSON response with redirect URL
+      // Send JSON response with redirect URL
+      res.status(200).json({ redirect: '/dashboard.html' });
     } else {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
@@ -66,8 +68,10 @@ app.post('/login', (req, res) => {
           return res.status(500).json({ error: 'Internal server error' });
         }
         if (row) {
-          res.status(200).json({ redirect: '/admin_users.html' }); // Send JSON response with redirect URL
+          // Send JSON response with redirect URL
+          res.status(200).json({ redirect: '/admin_users.html' });
         } else {
+          // Send JSON response indicating invalid username or password
           res.status(401).json({ error: 'Invalid username or password' });
         }
       });
