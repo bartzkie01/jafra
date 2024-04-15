@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Use process.env.PORT for Heroku deployment
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,8 +17,7 @@ const adminUsersDb = new sqlite3.Database('admin_users.db');
 
 app.use(cors());
 
-const publicDirectoryPath = path.join(__dirname);
-
+const publicDirectoryPath = path.join(__dirname, 'public'); // Specify the directory for static files
 app.use(express.static(publicDirectoryPath));
 
 app.get('/', (req, res) => {
@@ -31,10 +30,9 @@ app.get('/jafra_admin_data', (req, res) => {
   jafraDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Jafra Admin data:', err);
-      res.status(500).send('Internal server error');
-    } else {
-      res.json(rows);
+      return res.status(500).send('Internal server error');
     }
+    res.json(rows);
   });
 });
 
@@ -44,10 +42,9 @@ app.get('/admin_users_data', (req, res) => {
   adminUsersDb.all(query, (err, rows) => {
     if (err) {
       console.error('Error fetching Admin Users data:', err);
-      res.status(500).send('Internal server error');
-    } else {
-      res.json(rows);
+      return res.status(500).send('Internal server error');
     }
+    res.json(rows);
   });
 });
 
@@ -61,7 +58,7 @@ app.post('/login', (req, res) => {
       return res.status(500).send('Internal server error');
     }
     if (row) {
-      res.send('/dashboard.html'); // Redirect to dashboard.html
+      res.redirect('/dashboard.html'); // Redirect to dashboard.html
     } else {
       adminUsersDb.get(queryAdmin, [username, password], (err, row) => {
         if (err) {
@@ -69,7 +66,7 @@ app.post('/login', (req, res) => {
           return res.status(500).send('Internal server error');
         }
         if (row) {
-          res.send('/admin_users.html'); // Redirect to admin_users.htmla
+          res.redirect('/admin_users.html'); // Redirect to admin_users.html
         } else {
           res.status(401).send('Invalid username or password.');
         }
